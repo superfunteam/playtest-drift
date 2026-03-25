@@ -48,8 +48,11 @@ interface SortableCardProps {
   detailsVisible: boolean;
   triviaOpen: boolean;
   resultTone: 'correct' | 'wrong' | null;
+  forceLayoutAnimation: boolean;
   onToggleTrivia: () => void;
 }
+
+const REORDER_ANIMATION_MS = 420;
 
 function makeRoundUIState(order: string[], isSubmitLocked: boolean): RoundUIState {
   return {
@@ -81,20 +84,31 @@ function SortableCard({
   detailsVisible,
   triviaOpen,
   resultTone,
+  forceLayoutAnimation,
   onToggleTrivia
 }: SortableCardProps) {
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({
     id,
-    disabled,
+    disabled: {
+      draggable: disabled,
+      droppable: false
+    },
     transition: {
-      duration: 300,
+      duration: REORDER_ANIMATION_MS,
       easing: 'cubic-bezier(0.2, 0.86, 0.2, 1)'
     },
-    animateLayoutChanges: defaultAnimateLayoutChanges
+    animateLayoutChanges: (args) => {
+      if (forceLayoutAnimation) {
+        return true;
+      }
+      return defaultAnimateLayoutChanges(args);
+    }
   });
 
   const driftOffset = `${index * 12}px`;
-  const combinedTransition = transition ? `${transition}, margin-left 300ms ease` : 'margin-left 300ms ease';
+  const combinedTransition = transition
+    ? `${transition}, margin-left ${REORDER_ANIMATION_MS}ms cubic-bezier(0.2, 0.86, 0.2, 1)`
+    : `margin-left ${REORDER_ANIMATION_MS}ms cubic-bezier(0.2, 0.86, 0.2, 1)`;
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -356,6 +370,7 @@ export function RoundBoard({
                   detailsVisible={detailsVisible}
                   triviaOpen={uiState.triviaOpen.includes(key)}
                   resultTone={resultTone}
+                  forceLayoutAnimation={phase === 'revealing'}
                   onToggleTrivia={() => toggleTrivia(key, detailsVisible)}
                 />
               );
