@@ -165,6 +165,8 @@ export function App({ runtimeOverride, providerOverride }: AppProps) {
   const totalRounds = state.rounds.length || 5;
   const roundNumber = state.phase === 'complete' ? totalRounds : Math.min(state.currentRoundIndex + 1, totalRounds);
   const currentRoundScore = state.phase === 'revealing' || state.phase === 'complete' ? state.currentResult?.roundScore ?? null : null;
+  const labelByKey = useMemo(() => new Map((currentRound?.items ?? []).map((item) => [item.key, item.label])), [currentRound]);
+  const debugOrderText = state.currentOrder.map((key) => labelByKey.get(key) ?? key).join(' -> ');
 
   async function handleSubmit(submittedOrderInput: string[]) {
     if (!providerState.provider || !currentRound || !canSubmit(state)) return;
@@ -204,6 +206,9 @@ export function App({ runtimeOverride, providerOverride }: AppProps) {
 
   return (
     <main className="app-shell">
+      <div className="debug-order-bar" aria-live="polite">
+        <strong>Current Order:</strong> {debugOrderText || '(empty)'}
+      </div>
       <header className="hero">
         <p className="hero__tag">Drift Playtest</p>
         <h1>Drift</h1>

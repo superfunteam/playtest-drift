@@ -14,6 +14,7 @@ export interface RevealTimeline {
 
 export interface RevealTimelineConfig {
   initialDelayMs: number;
+  colorLeadMs: number;
   stepMs: number;
   settleMs: number;
   detailsStaggerMs: number;
@@ -21,6 +22,7 @@ export interface RevealTimelineConfig {
 
 const DEFAULT_CONFIG: RevealTimelineConfig = {
   initialDelayMs: 160,
+  colorLeadMs: 360,
   stepMs: 420,
   settleMs: 260,
   detailsStaggerMs: 110
@@ -75,17 +77,16 @@ export function buildRevealTimeline(
     ...config
   };
 
+  const colorAtMs = values.initialDelayMs;
+  const movementStartAtMs = colorAtMs + values.colorLeadMs;
   const steps = buildRawSteps(submittedOrder, canonicalOrder).map((step, index) => ({
     ...step,
-    delayMs: values.initialDelayMs + index * values.stepMs
+    delayMs: movementStartAtMs + index * values.stepMs
   }));
 
-  const colorAtMs =
-    steps.length > 0
-      ? values.initialDelayMs + (steps.length - 1) * values.stepMs + values.settleMs
-      : values.initialDelayMs;
-
-  const detailsStartAtMs = colorAtMs + 70;
+  const movementEndAtMs =
+    steps.length > 0 ? movementStartAtMs + (steps.length - 1) * values.stepMs + values.settleMs : colorAtMs + values.settleMs;
+  const detailsStartAtMs = movementEndAtMs + 70;
   const totalMs = detailsStartAtMs + Math.max(0, canonicalOrder.length - 1) * values.detailsStaggerMs + 120;
 
   return {

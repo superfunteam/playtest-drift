@@ -14,7 +14,9 @@ describe('buildRevealTimeline', () => {
   it('starts metadata after reorder color stage', () => {
     const timeline = buildRevealTimeline(['d', 'c', 'b', 'a'], ['a', 'b', 'c', 'd']);
 
+    expect(timeline.steps[0].delayMs).toBeGreaterThan(timeline.colorAtMs);
     expect(timeline.detailsStartAtMs).toBeGreaterThan(timeline.colorAtMs);
+    expect(timeline.detailsStartAtMs).toBeGreaterThan(timeline.steps[timeline.steps.length - 1].delayMs);
     expect(timeline.totalMs).toBeGreaterThan(timeline.detailsStartAtMs);
   });
 

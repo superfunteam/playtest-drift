@@ -42,9 +42,28 @@ button,
 .app-shell {
   max-width: 860px;
   margin: 0 auto;
-  padding: 20px 14px 38px;
+  padding: 62px 14px 38px;
   display: grid;
   gap: 12px;
+}
+
+.debug-order-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 999;
+  padding: 8px 12px;
+  border-bottom: 2px solid #1f2b57;
+  background: #f7da1f;
+  color: #101733;
+  font-size: 0.84rem;
+  line-height: 1.25;
+  font-family: 'Fredoka', 'Trebuchet MS', sans-serif;
+}
+
+.debug-order-bar strong {
+  margin-right: 6px;
 }
 
 .hero {
@@ -430,7 +449,7 @@ button,
 
 @media (max-width: 760px) {
   .app-shell {
-    padding: 16px 12px 30px;
+    padding: 72px 12px 30px;
   }
 
   .top-bar__stats {
