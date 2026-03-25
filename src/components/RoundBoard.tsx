@@ -34,7 +34,7 @@ interface RoundBoardProps {
   isLastRound: boolean;
   soundEnabled: boolean;
   onOrderChange: (nextOrder: string[]) => void;
-  onSubmit: () => void;
+  onSubmit: (submittedOrder: string[]) => void;
   onContinue: () => void;
 }
 
@@ -162,6 +162,7 @@ export function RoundBoard({
   const [showResultColors, setShowResultColors] = useState(false);
   const [isRevealComplete, setIsRevealComplete] = useState(false);
   const soundEnabledRef = useRef(soundEnabled);
+  const displayOrderRef = useRef(order.slice());
 
   useEffect(() => {
     soundEnabledRef.current = soundEnabled;
@@ -170,6 +171,7 @@ export function RoundBoard({
   useEffect(() => {
     if (phase !== 'playing') return;
 
+    displayOrderRef.current = order.slice();
     setUiState(makeRoundUIState(order, false));
     setShowResultColors(false);
     setIsRevealComplete(false);
@@ -185,6 +187,7 @@ export function RoundBoard({
 
     if (!result) return;
 
+    displayOrderRef.current = result.submittedOrder.slice();
     setUiState(makeRoundUIState(result.submittedOrder, true));
     setShowResultColors(false);
     setIsRevealComplete(false);
@@ -194,6 +197,7 @@ export function RoundBoard({
 
     timeline.steps.forEach((step, index) => {
       const timerId = window.setTimeout(() => {
+        displayOrderRef.current = step.order.slice();
         setUiState((current) => ({
           ...current,
           displayOrder: step.order.slice(),
@@ -265,11 +269,13 @@ export function RoundBoard({
     const { active, over } = event;
     if (!over || active.id === over.id) return;
 
-    const oldIndex = uiState.displayOrder.indexOf(String(active.id));
-    const newIndex = uiState.displayOrder.indexOf(String(over.id));
+    const currentOrder = displayOrderRef.current;
+    const oldIndex = currentOrder.indexOf(String(active.id));
+    const newIndex = currentOrder.indexOf(String(over.id));
     if (oldIndex < 0 || newIndex < 0) return;
 
-    const nextOrder = arrayMove(uiState.displayOrder, oldIndex, newIndex);
+    const nextOrder = arrayMove(currentOrder, oldIndex, newIndex);
+    displayOrderRef.current = nextOrder;
     setUiState((current) => ({
       ...current,
       displayOrder: nextOrder
@@ -280,11 +286,12 @@ export function RoundBoard({
   function handleSubmit(): void {
     if (phase !== 'playing' || uiState.isSubmitLocked || isSubmitting) return;
 
+    const submittedOrder = displayOrderRef.current.slice();
     setUiState((current) => ({
       ...current,
       isSubmitLocked: true
     }));
-    onSubmit();
+    onSubmit(submittedOrder);
   }
 
   function toggleTrivia(key: string, detailsVisible: boolean): void {

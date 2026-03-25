@@ -166,10 +166,11 @@ export function App({ runtimeOverride, providerOverride }: AppProps) {
   const roundNumber = state.phase === 'complete' ? totalRounds : Math.min(state.currentRoundIndex + 1, totalRounds);
   const currentRoundScore = state.phase === 'revealing' || state.phase === 'complete' ? state.currentResult?.roundScore ?? null : null;
 
-  async function handleSubmit() {
+  async function handleSubmit(submittedOrderInput: string[]) {
     if (!providerState.provider || !currentRound || !canSubmit(state)) return;
 
-    const submittedOrder = state.currentOrder.slice();
+    const submittedOrder = submittedOrderInput.slice();
+    dispatch({ type: 'REORDER', order: submittedOrder });
     dispatch({ type: 'SUBMIT_REQUEST' });
 
     try {
