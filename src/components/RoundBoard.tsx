@@ -161,6 +161,7 @@ export function RoundBoard({
   const [uiState, setUiState] = useState<RoundUIState>(() => makeRoundUIState(order, phase !== 'playing'));
   const [showResultColors, setShowResultColors] = useState(false);
   const [isRevealComplete, setIsRevealComplete] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
   const soundEnabledRef = useRef(soundEnabled);
   const displayOrderRef = useRef(order.slice());
 
@@ -172,6 +173,7 @@ export function RoundBoard({
     if (phase !== 'playing') return;
 
     displayOrderRef.current = order.slice();
+    setIsDragging(false);
     setUiState(makeRoundUIState(order, false));
     setShowResultColors(false);
     setIsRevealComplete(false);
@@ -180,6 +182,7 @@ export function RoundBoard({
   useEffect(() => {
     if (phase !== 'revealing') return;
 
+    setIsDragging(false);
     setUiState((current) => ({
       ...current,
       isSubmitLocked: true
@@ -264,6 +267,7 @@ export function RoundBoard({
   );
 
   function handleDragEnd(event: DragEndEvent): void {
+    setIsDragging(false);
     if (phase !== 'playing' || uiState.isSubmitLocked) return;
 
     const { active, over } = event;
@@ -284,7 +288,7 @@ export function RoundBoard({
   }
 
   function handleSubmit(): void {
-    if (phase !== 'playing' || uiState.isSubmitLocked || isSubmitting) return;
+    if (phase !== 'playing' || uiState.isSubmitLocked || isSubmitting || isDragging) return;
 
     const submittedOrder = displayOrderRef.current.slice();
     setUiState((current) => ({
@@ -321,7 +325,17 @@ export function RoundBoard({
       <h2>{prompt}</h2>
       <p className="board__hint">{helperText}</p>
 
-      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragStart={() => {
+          setIsDragging(true);
+        }}
+        onDragCancel={() => {
+          setIsDragging(false);
+        }}
+        onDragEnd={handleDragEnd}
+      >
         <SortableContext items={uiState.displayOrder} strategy={verticalListSortingStrategy}>
           <ol className="drift-list" aria-label="Sortable words">
             {uiState.displayOrder.map((key, index) => {
@@ -355,7 +369,7 @@ export function RoundBoard({
           type="button"
           className="primary-button"
           onClick={handleSubmit}
-          disabled={uiState.isSubmitLocked || isSubmitting}
+          disabled={uiState.isSubmitLocked || isSubmitting || isDragging}
         >
           {isSubmitting ? 'Submitting...' : 'Submit Order'}
         </button>
