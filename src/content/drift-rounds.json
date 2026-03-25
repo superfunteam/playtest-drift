@@ -1,0 +1,172 @@
+[
+  {
+    "id": "round-1",
+    "theme": "Words from the wardrobe",
+    "prompt": "Sort these words from the wardrobe",
+    "items": [
+      { "key": "breeches", "label": "BREECHES" },
+      { "key": "pantaloons", "label": "PANTALOONS" },
+      { "key": "pants", "label": "PANTS" },
+      { "key": "fancy_pants", "label": "FANCY PANTS" }
+    ],
+    "correct_order": ["breeches", "pantaloons", "pants", "fancy_pants"],
+    "reveal": [
+      {
+        "key": "breeches",
+        "year": "Old English (~800s)",
+        "description": "Among the oldest clothing words in English."
+      },
+      {
+        "key": "pantaloons",
+        "year": "1660s",
+        "description": "Named after Pantalone in Italian commedia dell'arte."
+      },
+      {
+        "key": "pants",
+        "year": "1835",
+        "description": "Shortened from pantaloons and once considered vulgar."
+      },
+      {
+        "key": "fancy_pants",
+        "year": "1870",
+        "description": "Started as fabric wording, then became playful slang."
+      }
+    ]
+  },
+  {
+    "id": "round-2",
+    "theme": "Words that went from quirky to grumpy",
+    "prompt": "Sort these words that went from quirky to grumpy",
+    "items": [
+      { "key": "crotchet", "label": "CROTCHET" },
+      { "key": "crank", "label": "CRANK" },
+      { "key": "cranky", "label": "CRANKY" },
+      { "key": "crotchety", "label": "CROTCHETY" }
+    ],
+    "correct_order": ["crotchet", "crank", "cranky", "crotchety"],
+    "reveal": [
+      {
+        "key": "crotchet",
+        "year": "1400s",
+        "description": "Borrowed from French, later meaning a whimsical notion."
+      },
+      {
+        "key": "crank",
+        "year": "late 1500s",
+        "description": "From a bent axle part to figurative eccentricity."
+      },
+      {
+        "key": "cranky",
+        "year": "early 1800s",
+        "description": "Shifted from eccentric to difficult and ill-tempered."
+      },
+      {
+        "key": "crotchety",
+        "year": "mid 1800s",
+        "description": "Once full of whims, now mostly means grouchy."
+      }
+    ]
+  },
+  {
+    "id": "round-3",
+    "theme": "Words for \"right exactly there\"",
+    "prompt": "Sort these words for \"right exactly there\"",
+    "items": [
+      { "key": "slap_bang", "label": "SLAP BANG" },
+      { "key": "lickety_split", "label": "LICKETY SPLIT" },
+      { "key": "smack_dab", "label": "SMACK DAB" },
+      { "key": "bang_on", "label": "BANG ON" }
+    ],
+    "correct_order": ["slap_bang", "lickety_split", "smack_dab", "bang_on"],
+    "reveal": [
+      {
+        "key": "slap_bang",
+        "year": "late 1700s",
+        "description": "British expression for direct position or fast action."
+      },
+      {
+        "key": "lickety_split",
+        "year": "1818",
+        "description": "American term meaning at full speed."
+      },
+      {
+        "key": "smack_dab",
+        "year": "1839",
+        "description": "Exactly in position, an American cousin of slap bang."
+      },
+      {
+        "key": "bang_on",
+        "year": "1930s",
+        "description": "British slang for exactly right or excellent."
+      }
+    ]
+  },
+  {
+    "id": "round-4",
+    "theme": "Words from the pepper plant",
+    "prompt": "Sort these words from the pepper plant",
+    "items": [
+      { "key": "pepper_verb", "label": "PEPPER (verb)" },
+      { "key": "peppery", "label": "PEPPERY" },
+      { "key": "pep", "label": "PEP" },
+      { "key": "peppy", "label": "PEPPY" }
+    ],
+    "correct_order": ["pepper_verb", "peppery", "pep", "peppy"],
+    "reveal": [
+      {
+        "key": "pepper_verb",
+        "year": "1500s",
+        "description": "To pelt or sprinkle a surface with many small things."
+      },
+      {
+        "key": "peppery",
+        "year": "1700s",
+        "description": "Used for hot tempers and sharp, provocative language."
+      },
+      {
+        "key": "pep",
+        "year": "1908",
+        "description": "Shortened from pepper, then spread through sports slang."
+      },
+      {
+        "key": "peppy",
+        "year": "1914",
+        "description": "Full of high spirits and energetic drive."
+      }
+    ]
+  },
+  {
+    "id": "round-5",
+    "theme": "Words born from luck",
+    "prompt": "Sort these words born from luck",
+    "items": [
+      { "key": "hap", "label": "HAP" },
+      { "key": "mishap", "label": "MISHAP" },
+      { "key": "perhaps", "label": "PERHAPS" },
+      { "key": "happy", "label": "HAPPY" }
+    ],
+    "correct_order": ["hap", "mishap", "perhaps", "happy"],
+    "reveal": [
+      {
+        "key": "hap",
+        "year": "c. 1200",
+        "description": "Borrowed from Old Norse to mean chance or fortune."
+      },
+      {
+        "key": "mishap",
+        "year": "1300s",
+        "description": "Literally bad fortune: mis- plus hap."
+      },
+      {
+        "key": "perhaps",
+        "year": "1400s",
+        "description": "Literally by chance, still used every day."
+      },
+      {
+        "key": "happy",
+        "year": "1500s",
+        "description": "Originally lucky before it shifted toward joyful."
+      }
+    ]
+  }
+]
