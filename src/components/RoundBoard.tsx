@@ -262,23 +262,24 @@ export function RoundBoard({
   const labels = useMemo(() => new Map(items.map((item) => [item.key, item.label])), [items]);
   const outcomeMap = useMemo(() => buildOutcomeMap(result), [result]);
   const revealMap = useMemo(() => buildRevealMap(result), [result]);
+  const supportsPointerEvents = typeof window !== 'undefined' && 'PointerEvent' in window;
 
-  const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: {
-        distance: 6
-      }
-    }),
-    useSensor(TouchSensor, {
-      activationConstraint: {
-        delay: 110,
-        tolerance: 8
-      }
-    }),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates
-    })
-  );
+  const pointerSensor = useSensor(PointerSensor, {
+    activationConstraint: {
+      distance: 4
+    }
+  });
+  const touchSensor = useSensor(TouchSensor, {
+    activationConstraint: {
+      delay: 0,
+      tolerance: 12
+    }
+  });
+  const keyboardSensor = useSensor(KeyboardSensor, {
+    coordinateGetter: sortableKeyboardCoordinates
+  });
+
+  const sensors = useSensors(...(supportsPointerEvents ? [pointerSensor] : [touchSensor]), keyboardSensor);
 
   function handleDragEnd(event: DragEndEvent): void {
     setIsDragging(false);
