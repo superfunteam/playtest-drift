@@ -1,6 +1,7 @@
 import {
   DndContext,
   KeyboardSensor,
+  MeasuringStrategy,
   PointerSensor,
   TouchSensor,
   closestCenter,
@@ -343,6 +344,11 @@ export function RoundBoard({
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter}
+        measuring={{
+          droppable: {
+            strategy: MeasuringStrategy.Always
+          }
+        }}
         onDragStart={() => {
           setIsDragging(true);
         }}
