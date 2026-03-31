@@ -64,7 +64,6 @@ function differentCanonical(startOrder: string[]): string[] {
 describe('App gameplay loop', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    window.localStorage.clear();
   });
 
   afterEach(() => {
@@ -82,6 +81,8 @@ describe('App gameplay loop', () => {
 
     render(<App runtimeOverride={runtime} providerOverride={provider} />);
 
+    await screen.findByRole('dialog', { name: /how to play/i });
+    await user.click(screen.getByRole('button', { name: /start game/i }));
     await screen.findByText('Round One Prompt');
 
     const submitButton = screen.getByRole('button', { name: /submit order/i });
@@ -92,14 +93,12 @@ describe('App gameplay loop', () => {
     });
 
     const nextRoundButton = await screen.findByRole('button', { name: /next round/i }, { timeout: 3500 });
-    const totalChip = screen.getByText('Total').closest('.stat-chip');
-    expect(totalChip).toHaveTextContent('4');
+    expect(screen.getByLabelText(/total score/i)).toHaveTextContent('4');
     expect(document.querySelectorAll('.drift-row--correct').length).toBeGreaterThan(0);
     expect(screen.getByText('1')).toBeInTheDocument();
 
     await user.click(nextRoundButton);
     await screen.findByText('Round Two Prompt');
-    expect(screen.getByText('2/2')).toBeInTheDocument();
   });
 
   it('mutes reveal tones when sound is toggled off', async () => {
@@ -110,6 +109,8 @@ describe('App gameplay loop', () => {
 
     render(<App runtimeOverride={runtime} providerOverride={provider} />);
 
+    await screen.findByRole('dialog', { name: /how to play/i });
+    await user.click(screen.getByRole('button', { name: /start game/i }));
     await screen.findByText('Round One Prompt');
 
     await user.click(screen.getByRole('button', { name: /mute sound/i }));

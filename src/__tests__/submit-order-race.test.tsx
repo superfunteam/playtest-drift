@@ -72,7 +72,6 @@ function makeProvider(rounds: DriftRound[]): DriftProvider {
 describe('submit order race protection', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    window.localStorage.clear();
   });
 
   afterEach(() => {
@@ -85,6 +84,8 @@ describe('submit order race protection', () => {
 
     render(<App runtimeOverride={runtime} providerOverride={provider} />);
 
+    await screen.findByRole('dialog', { name: /how to play/i });
+    await user.click(screen.getByRole('button', { name: /start game/i }));
     await screen.findByRole('button', { name: /submit race/i });
     await user.click(screen.getByRole('button', { name: /submit race/i }));
 

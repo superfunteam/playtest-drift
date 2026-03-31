@@ -77,6 +77,7 @@ function saveUserPrefs(prefs: UserPrefs): void {
 export function App({ runtimeOverride, providerOverride }: AppProps) {
   const [runtimeConfig, setRuntimeConfig] = useState<RuntimeConfig>(() => runtimeOverride ?? resolveRuntimeConfig());
   const [prefs, setPrefs] = useState<UserPrefs>(() => loadUserPrefs());
+  const [showIntroModal, setShowIntroModal] = useState(true);
   const [sessionIteration, setSessionIteration] = useState(0);
   const [state, dispatch] = useReducer(sessionReducer, initialSessionState);
   const completionMarkerRef = useRef<string | null>(null);
@@ -96,6 +97,10 @@ export function App({ runtimeOverride, providerOverride }: AppProps) {
       syncUrlConfig(runtimeConfig);
     }
   }, [runtimeConfig, runtimeOverride]);
+
+  useEffect(() => {
+    setShowIntroModal(true);
+  }, [runtimeConfig.seed, sessionIteration]);
 
   const providerState = useMemo(() => {
     if (providerOverride) {
@@ -162,9 +167,6 @@ export function App({ runtimeOverride, providerOverride }: AppProps) {
   }, [providerState.provider, state.phase, state.seed, state.sessionRef]);
 
   const currentRound = state.rounds[state.currentRoundIndex] ?? null;
-  const totalRounds = state.rounds.length || 5;
-  const roundNumber = state.phase === 'complete' ? totalRounds : Math.min(state.currentRoundIndex + 1, totalRounds);
-  const currentRoundScore = state.phase === 'revealing' || state.phase === 'complete' ? state.currentResult?.roundScore ?? null : null;
   const labelByKey = useMemo(() => new Map((currentRound?.items ?? []).map((item) => [item.key, item.label])), [currentRound]);
 
   useEffect(() => {
@@ -212,24 +214,17 @@ export function App({ runtimeOverride, providerOverride }: AppProps) {
   return (
     <main className="app-shell">
       <header className="hero">
-        <p className="hero__tag">Drift Playtest</p>
         <h1>Drift</h1>
-        <p className="hero__subtitle">Sort four words from oldest to newest. Submit once. Learn as you go.</p>
+        <TopBar
+          runningScore={state.runningScore}
+          soundEnabled={prefs.soundEnabled}
+          onToggleSound={() => {
+            setPrefs((current) => ({
+              soundEnabled: !current.soundEnabled
+            }));
+          }}
+        />
       </header>
-
-      <TopBar
-        roundNumber={roundNumber}
-        totalRounds={totalRounds}
-        runningScore={state.runningScore}
-        currentRoundScore={currentRoundScore}
-        phase={state.phase}
-        soundEnabled={prefs.soundEnabled}
-        onToggleSound={() => {
-          setPrefs((current) => ({
-            soundEnabled: !current.soundEnabled
-          }));
-        }}
-      />
 
       {state.error && <StateNotice title="Heads Up" message={state.error} tone="error" />}
 
@@ -245,7 +240,23 @@ export function App({ runtimeOverride, providerOverride }: AppProps) {
         />
       )}
 
-      {currentRound && (state.phase === 'playing' || state.phase === 'revealing') && (
+      {showIntroModal && state.phase !== 'booting' && state.phase !== 'error' && (
+        <div className="intro-modal-backdrop" role="presentation">
+          <section className="intro-modal card" role="dialog" aria-modal="true" aria-labelledby="intro-title">
+            <h2 id="intro-title">How to Play</h2>
+            <ol className="intro-modal__steps">
+              <li>Drag the four words into oldest-to-newest order.</li>
+              <li>Tap Submit once to lock your guess for this round.</li>
+              <li>Review the reveal and use it to improve next round.</li>
+            </ol>
+            <button type="button" className="primary-button" onClick={() => setShowIntroModal(false)}>
+              Start Game
+            </button>
+          </section>
+        </div>
+      )}
+
+      {currentRound && !showIntroModal && (state.phase === 'playing' || state.phase === 'revealing') && (
         <RoundBoard
           key={currentRound.id}
           roundId={currentRound.id}
