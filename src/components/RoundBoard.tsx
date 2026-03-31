@@ -1,7 +1,6 @@
 import {
   DndContext,
   KeyboardSensor,
-  MeasuringStrategy,
   PointerSensor,
   TouchSensor,
   closestCenter,
@@ -18,7 +17,7 @@ import {
   verticalListSortingStrategy
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import { playRevealTone } from '../game/audio';
 import { buildRevealTimeline } from '../game/reveal-timeline';
 import type { DriftItem, RoundResult, RoundUIState } from '../game/types';
@@ -50,6 +49,7 @@ interface SortableCardProps {
   triviaOpen: boolean;
   resultTone: 'correct' | 'wrong' | null;
   forceLayoutAnimation: boolean;
+  domRef: (node: HTMLLIElement | null) => void;
   onToggleTrivia: () => void;
 }
 
@@ -86,6 +86,7 @@ function SortableCard({
   triviaOpen,
   resultTone,
   forceLayoutAnimation,
+  domRef,
   onToggleTrivia
 }: SortableCardProps) {
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({
@@ -99,25 +100,28 @@ function SortableCard({
       easing: 'cubic-bezier(0.2, 0.86, 0.2, 1)'
     },
     animateLayoutChanges: (args) => {
-      if (forceLayoutAnimation) {
-        return true;
-      }
+      if (forceLayoutAnimation) return false;
       return defaultAnimateLayoutChanges(args);
     }
   });
 
-  const driftOffset = `${index * 12}px`;
-  const fallbackTransformTransition = `transform ${REORDER_ANIMATION_MS}ms cubic-bezier(0.2, 0.86, 0.2, 1)`;
-  const fallbackOffsetTransition = `margin-left ${REORDER_ANIMATION_MS}ms cubic-bezier(0.2, 0.86, 0.2, 1)`;
-  const combinedTransition = transition
-    ? `${transition}, ${fallbackOffsetTransition}`
-    : `${fallbackTransformTransition}, ${fallbackOffsetTransition}`;
+  const mergedRef = useCallback(
+    (node: HTMLLIElement | null) => {
+      setNodeRef(node);
+      domRef(node);
+    },
+    [setNodeRef, domRef]
+  );
 
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition: combinedTransition,
-    ['--drift-offset' as string]: driftOffset
-  } as CSSProperties;
+  const driftOffset = `${index * 12}px`;
+
+  const style = forceLayoutAnimation
+    ? ({ ['--drift-offset' as string]: driftOffset } as CSSProperties)
+    : ({
+        transform: CSS.Transform.toString(transform),
+        transition: transition ?? undefined,
+        ['--drift-offset' as string]: driftOffset
+      } as CSSProperties);
 
   const rowClass = [
     'drift-row',
@@ -128,7 +132,7 @@ function SortableCard({
     .join(' ');
 
   return (
-    <li ref={setNodeRef} style={style} className={rowClass}>
+    <li ref={mergedRef} style={style} className={rowClass}>
       <div className={`drift-card ${disabled ? 'drift-card--locked' : ''}`} {...attributes} {...listeners}>
         <div className="drift-card__main">
           <span className="drift-card__grab" aria-hidden="true">
@@ -181,6 +185,9 @@ export function RoundBoard({
   const [isDragging, setIsDragging] = useState(false);
   const soundEnabledRef = useRef(soundEnabled);
   const displayOrderRef = useRef(order.slice());
+  const itemNodesRef = useRef(new Map<string, HTMLLIElement>());
+  const flipSnapshotRef = useRef<Map<string, DOMRect> | null>(null);
+  const flipPendingRef = useRef(false);
 
   useEffect(() => {
     soundEnabledRef.current = soundEnabled;
@@ -217,6 +224,13 @@ export function RoundBoard({
 
     timeline.steps.forEach((step, index) => {
       const timerId = window.setTimeout(() => {
+        const snapshot = new Map<string, DOMRect>();
+        for (const [key, node] of itemNodesRef.current) {
+          snapshot.set(key, node.getBoundingClientRect());
+        }
+        flipSnapshotRef.current = snapshot;
+        flipPendingRef.current = true;
+
         displayOrderRef.current = step.order.slice();
         setUiState((current) => ({
           ...current,
@@ -261,6 +275,33 @@ export function RoundBoard({
       }
     };
   }, [phase, result, roundId]);
+
+  useLayoutEffect(() => {
+    if (!flipPendingRef.current || !flipSnapshotRef.current) return;
+
+    const oldPositions = flipSnapshotRef.current;
+    flipSnapshotRef.current = null;
+    flipPendingRef.current = false;
+
+    for (const [key, node] of itemNodesRef.current) {
+      const oldRect = oldPositions.get(key);
+      if (!oldRect) continue;
+
+      const newRect = node.getBoundingClientRect();
+      const deltaY = oldRect.top - newRect.top;
+
+      if (Math.abs(deltaY) < 0.5) continue;
+
+      node.animate?.(
+        [{ transform: `translateY(${deltaY}px)` }, { transform: 'translateY(0)' }],
+        {
+          duration: REORDER_ANIMATION_MS,
+          easing: 'cubic-bezier(0.2, 0.86, 0.2, 1)',
+          fill: 'none' as FillMode
+        }
+      );
+    }
+  }, [uiState.revealStep]);
 
   const labels = useMemo(() => new Map(items.map((item) => [item.key, item.label])), [items]);
   const outcomeMap = useMemo(() => buildOutcomeMap(result), [result]);
@@ -346,11 +387,6 @@ export function RoundBoard({
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter}
-        measuring={{
-          droppable: {
-            strategy: MeasuringStrategy.Always
-          }
-        }}
         onDragStart={() => {
           setIsDragging(true);
         }}
@@ -380,6 +416,10 @@ export function RoundBoard({
                   triviaOpen={uiState.triviaOpen.includes(key)}
                   resultTone={resultTone}
                   forceLayoutAnimation={phase === 'revealing'}
+                  domRef={(node) => {
+                    if (node) itemNodesRef.current.set(key, node);
+                    else itemNodesRef.current.delete(key);
+                  }}
                   onToggleTrivia={() => toggleTrivia(key, detailsVisible)}
                 />
               );

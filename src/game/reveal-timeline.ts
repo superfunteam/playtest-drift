@@ -24,7 +24,7 @@ const DEFAULT_CONFIG: RevealTimelineConfig = {
   initialDelayMs: 160,
   colorLeadMs: 360,
   stepMs: 520,
-  settleMs: 260,
+  settleMs: 480,
   detailsStaggerMs: 110
 };
 
