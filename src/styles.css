@@ -190,6 +190,7 @@ button,
   width: calc(100% - var(--drift-max-offset));
   margin-left: var(--drift-offset, 0px);
   transition: margin-left 280ms ease;
+  will-change: transform, margin-left;
 }
 
 .drift-card {

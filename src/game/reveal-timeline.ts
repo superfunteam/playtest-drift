@@ -23,7 +23,7 @@ export interface RevealTimelineConfig {
 const DEFAULT_CONFIG: RevealTimelineConfig = {
   initialDelayMs: 160,
   colorLeadMs: 360,
-  stepMs: 420,
+  stepMs: 520,
   settleMs: 260,
   detailsStaggerMs: 110
 };

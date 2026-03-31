@@ -107,9 +107,11 @@ function SortableCard({
   });
 
   const driftOffset = `${index * 12}px`;
+  const fallbackTransformTransition = `transform ${REORDER_ANIMATION_MS}ms cubic-bezier(0.2, 0.86, 0.2, 1)`;
+  const fallbackOffsetTransition = `margin-left ${REORDER_ANIMATION_MS}ms cubic-bezier(0.2, 0.86, 0.2, 1)`;
   const combinedTransition = transition
-    ? `${transition}, margin-left ${REORDER_ANIMATION_MS}ms cubic-bezier(0.2, 0.86, 0.2, 1)`
-    : `margin-left ${REORDER_ANIMATION_MS}ms cubic-bezier(0.2, 0.86, 0.2, 1)`;
+    ? `${transition}, ${fallbackOffsetTransition}`
+    : `${fallbackTransformTransition}, ${fallbackOffsetTransition}`;
 
   const style = {
     transform: CSS.Transform.toString(transform),
